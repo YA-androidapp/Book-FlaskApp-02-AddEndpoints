@@ -59,10 +59,6 @@ C:\Users\y\Documents\GitHub\Book-FlaskApp-02-AddEndpoints> set FLASK_APP=app.py
 >
 > - Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
 
-ブラウザを開き、 [http://127.0.0.1:5000/](http://127.0.0.1:5000/) にアクセスして、 `Hello, World!` と表示されることを確認します。
-
-![hello-world.png](README-src/hello-world.png)
-
 デバッグモードを有効化する場合は、以下のコマンドを実行します。
 
 ```ps
