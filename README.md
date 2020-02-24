@@ -14,7 +14,7 @@ PS C:\Users\y\Documents\GitHub\Book-FlaskApp-02-AddEndpoints> flaskenv\Scripts\a
 
 ## Flask で 複数のエンドポイントを持つ API を作る
 
-[app.py](app.py) を作成し、以下のコードを書きます。
+[app.py](app.py) を作成し、以下のコードを書きます。 [app01.py](app01.py)
 
 ```py
 from flask import Flask
@@ -72,3 +72,88 @@ C:\Users\y\Documents\GitHub\Book-FlaskApp-02-AddEndpoints> set FLASK_APP=app.py
 - [http://127.0.0.1:5000/hello](http://127.0.0.1:5000/hello)
 
 にアクセスして、それぞれ `Index` `Hello` と表示されることを確認します。
+
+## エンドポイントで受け取る型を指定する
+
+次に、 app.py の内容を、以下に書き換えます。 [app02.py](app02.py)
+
+```py
+from flask import Flask
+from markupsafe import escape
+
+app = Flask(__name__)
+
+
+@app.route('/user/name/<username>')
+def show_name(username):
+    return 'Name %s' % escape(username)
+
+@app.route('/user/age/<int:age>')
+def show_age_int(age):
+    return 'Age %d' % age
+
+@app.route('/user/age/<float:age>')
+def show_age_float(age):
+    return 'Age %f' % age
+
+@app.route('/user/height/<float:height>')
+def show_height(height):
+    return 'Height %f' % height
+
+@app.route('/user/path/<path:subpath>')
+def show_subpath(subpath):
+    return 'Subpath %s' % escape(subpath)
+
+@app.route('/user/id/<uuid:id>')
+def show_id(id):
+    return 'ID %s' % id
+```
+
+環境変数 `FLASK_APP` にファイル名を設定して、実行します。
+
+```ps
+(flaskenv) PS C:\Users\y\Documents\GitHub\Book-FlaskApp-02-AddEndpoints> $env:FLASK_APP = "app.py"
+(flaskenv) PS C:\Users\y\Documents\GitHub\Book-FlaskApp-02-AddEndpoints> python -m flask run
+```
+
+ブラウザを開き、以下のエンドポイントにアクセスします。
+
+| URL                                                                                                                         | 表示される内容                                 |
+| --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| [/user/name/taro](http://127.0.0.1:5000/user/name/taro)                                                                     | `Name taro`                                    |
+| [/user/name/1](http://127.0.0.1:5000/user/name/1)                                                                           | `Name 1`                                       |
+| [/user/name/1.1](http://127.0.0.1:5000/user/name/1.1)                                                                       | `Name 1.1`                                     |
+| [/user/name/123/456](http://127.0.0.1:5000/user/name/123/456)                                                               | **Not Found**                                  |
+| [/user/name/12345678-1234-1234-1234-123456789012](http://127.0.0.1:5000/user/name/12345678-1234-1234-1234-123456789012)     | `12345678-1234-1234-1234-123456789012`         |
+|                                                                                                                             |                                                |
+| [/user/age/taro](http://127.0.0.1:5000/user/age/taro)                                                                       | **Not Found**                                  |
+| [/user/age/1](http://127.0.0.1:5000/user/age/1)                                                                             | `Age 1`                                        |
+| [/user/age/1.1](http://127.0.0.1:5000/user/age/1.1)                                                                         | `Age 1.100000`                                 |
+| [/user/age/123/456](http://127.0.0.1:5000/user/age/123/456)                                                                 | **Not Found**                                  |
+| [/user/age/12345678-1234-1234-1234-123456789012](http://127.0.0.1:5000/user/age/12345678-1234-1234-1234-123456789012)       | **Not Found**                                  |
+|                                                                                                                             |                                                |
+| [/user/height/taro](http://127.0.0.1:5000/user/height/taro)                                                                 | **Not Found**                                  |
+| [/user/height/1](http://127.0.0.1:5000/user/height/1)                                                                       | **Not Found**                                  |
+| [/user/height/1.1](http://127.0.0.1:5000/user/height/1.1)                                                                   | `Age 1.100000`                                 |
+| [/user/height/123/456](http://127.0.0.1:5000/user/height/123/456)                                                           | **Not Found**                                  |
+| [/user/height/12345678-1234-1234-1234-123456789012](http://127.0.0.1:5000/user/height/12345678-1234-1234-1234-123456789012) | **Not Found**                                  |
+|                                                                                                                             |                                                |
+| [/user/path/taro](http://127.0.0.1:5000/user/path/taro)                                                                     | `Subpath taro`                                 |
+| [/user/path/1](http://127.0.0.1:5000/user/path/1)                                                                           | `Subpath 1`                                    |
+| [/user/path/1.1](http://127.0.0.1:5000/user/path/1.1)                                                                       | `Subpath 1.1`                                  |
+| [/user/path/123/456](http://127.0.0.1:5000/user/path/123/456)                                                               | `Subpath 123/456`                              |
+| [/user/path/12345678-1234-1234-1234-123456789012](http://127.0.0.1:5000/user/path/12345678-1234-1234-1234-123456789012)     | `Subpath 12345678-1234-1234-1234-123456789012` |
+|                                                                                                                             |                                                |
+| [/user/id/taro](http://127.0.0.1:5000/user/id/taro)                                                                         | **Not Found**                                  |
+| [/user/id/1](http://127.0.0.1:5000/user/id/1)                                                                               | **Not Found**                                  |
+| [/user/id/1.1](http://127.0.0.1:5000/user/id/1.1)                                                                           | **Not Found**                                  |
+| [/user/id/123/456](http://127.0.0.1:5000/user/id/123/456)                                                                   | **Not Found**                                  |
+| [/user/id/12345678-1234-1234-1234-123456789012](http://127.0.0.1:5000/user/id/12345678-1234-1234-1234-123456789012)         | `ID 12345678-1234-1234-1234-123456789012`      |
+
+| converter 名 | 受け入れる値                           |
+| ------------ | -------------------------------------- |
+| string       | （デフォルト）スラッシュなしのテキスト |
+| int          | 正の整数                               |
+| float        | 正の浮動小数点値                       |
+| path         | string + スラッシュ                    |
+| uuid         | UUID 文字列                            |
