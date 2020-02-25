@@ -236,3 +236,49 @@ def login():
 | [/projects/](http://127.0.0.1:5000/projects/) | `The about page` [/about?next=%2Fpath%2Fto](http://127.0.0.1:5000/about?next=%2Fpath%2Fto) にリダイレクトされる |
 | [/projects/](http://127.0.0.1:5000/projects/) | `The about page` [/about](http://127.0.0.1:5000/about) にリダイレクトされる                                     |
 | [/about](http://127.0.0.1:5000/login)         | **Unauthorized**                                                                                                |
+
+## HTTP メソッド
+
+次に、 app.py の内容を、以下に書き換えます。 [app05.py](app05.py)
+
+```py
+from flask import Flask, request, Markup
+
+app = Flask(__name__)
+
+
+@app.route('/')
+def index():
+    html = '''
+    <form action="/show">
+        <input type="text" name="name" value="taro" />
+        <button type="submit" formmethod="GET">GET</button>
+        <button type="submit" formmethod="POST">POST</button>
+    </form>
+    '''
+    return Markup(html)
+
+
+@app.route('/show', methods=['GET', 'POST'])
+def show():
+    try:
+        if request.method == 'POST':
+            return request.form['name']
+        elif request.method == 'GET':
+            return request.args.get('name', '')
+    except Exception as e:
+        return str(e)
+
+
+if __name__ == '__main__':
+    app.run()
+```
+
+環境変数 `FLASK_APP` にファイル名を設定して、実行します。
+
+```ps
+(flaskenv) PS C:\Users\y\Documents\GitHub\Book-FlaskApp-02-AddEndpoints> $env:FLASK_APP = "app.py"
+(flaskenv) PS C:\Users\y\Documents\GitHub\Book-FlaskApp-02-AddEndpoints> python -m flask run
+```
+
+ブラウザを開き、 [http://127.0.0.1:5000/](http://127.0.0.1:5000/) にアクセスして、フォームから文字列を送信し、クエリ文字列や API 側で受け取った `name` パラメータの値が正しいことを確認します。
