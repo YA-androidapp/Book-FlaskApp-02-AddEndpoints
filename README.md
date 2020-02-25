@@ -157,3 +157,82 @@ def show_id(id):
 | float        | 正の浮動小数点値                       |
 | path         | string + スラッシュ                    |
 | uuid         | UUID 文字列                            |
+
+## エンドポイントの末尾にスラッシュを指定した場合のリダイレクト
+
+次に、 app.py の内容を、以下に書き換えます。 [app03.py](app03.py)
+
+```py
+from flask import Flask
+from markupsafe import escape
+
+app = Flask(__name__)
+
+
+@app.route('/projects/')
+def projects():
+    return 'The project page'
+
+@app.route('/about')
+def about():
+    return 'The about page'
+```
+
+環境変数 `FLASK_APP` にファイル名を設定して、実行します。
+
+```ps
+(flaskenv) PS C:\Users\y\Documents\GitHub\Book-FlaskApp-02-AddEndpoints> $env:FLASK_APP = "app.py"
+(flaskenv) PS C:\Users\y\Documents\GitHub\Book-FlaskApp-02-AddEndpoints> python -m flask run
+```
+
+ブラウザを開き、以下のエンドポイントにアクセスします。
+
+| URL                                           | app.py の末尾の `/` | アクセス時の末尾の `/` | 表示される内容                                                                        |
+| --------------------------------------------- | ------------------- | ---------------------- | ------------------------------------------------------------------------------------- |
+| [/projects/](http://127.0.0.1:5000/projects/) | 有                  | 有                     | `The project page`                                                                    |
+| [/projects](http://127.0.0.1:5000/projects)   | 有                  | 無                     | `The project page` [/projects/](http://127.0.0.1:5000/projects/) にリダイレクトされる |
+| [/about/](http://127.0.0.1:5000/about/)       | 無                  | 有                     | **Not Found**                                                                         |
+| [/about](http://127.0.0.1:5000/about)         | 無                  | 無                     | `The about page`                                                                      |
+
+## 関数名を指定してリダイレクト
+
+次に、 app.py の内容を、以下に書き換えます。 [app04.py](app04.py)
+
+```py
+from flask import abort, Flask, redirect, url_for
+from markupsafe import escape
+
+app = Flask(__name__)
+
+
+@app.route('/')
+def index():
+    return redirect(url_for('about', next='/path/to'))
+
+@app.route('/projects/')
+def projects():
+    return redirect(url_for('about'))
+
+@app.route('/about')
+def about():
+    return 'The about page'
+
+@app.route('/login')
+def login():
+    abort(401)
+```
+
+環境変数 `FLASK_APP` にファイル名を設定して、実行します。
+
+```ps
+(flaskenv) PS C:\Users\y\Documents\GitHub\Book-FlaskApp-02-AddEndpoints> $env:FLASK_APP = "app.py"
+(flaskenv) PS C:\Users\y\Documents\GitHub\Book-FlaskApp-02-AddEndpoints> python -m flask run
+```
+
+ブラウザを開き、以下のエンドポイントにアクセスします。
+
+| URL                                           | 表示される内容                                                                                                  |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| [/projects/](http://127.0.0.1:5000/projects/) | `The about page` [/about?next=%2Fpath%2Fto](http://127.0.0.1:5000/about?next=%2Fpath%2Fto) にリダイレクトされる |
+| [/projects/](http://127.0.0.1:5000/projects/) | `The about page` [/about](http://127.0.0.1:5000/about) にリダイレクトされる                                     |
+| [/about](http://127.0.0.1:5000/login)         | **Unauthorized**                                                                                                |
