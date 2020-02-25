@@ -241,6 +241,8 @@ def login():
 
 次に、 app.py の内容を、以下に書き換えます。 [app05.py](app05.py)
 
+※method 以外のプロパティについては、 [Request](https://flask.palletsprojects.com/en/1.1.x/api/#flask.Request) を参照
+
 ```py
 from flask import Flask, request, Markup
 
